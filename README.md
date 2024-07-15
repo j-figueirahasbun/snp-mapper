@@ -1,1 +1,1 @@
-# snp-mapper
+# SNPMapper
