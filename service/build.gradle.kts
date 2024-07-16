@@ -19,8 +19,14 @@ repositories {
 dependencies {
     implementation(project(":domain"))
     implementation(project(":persistence"))
-    implementation("org.springframework.boot:spring-boot-starter")
+// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
+    implementation("org.springframework.boot:spring-boot-starter-web:3.3.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.1")
+
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {

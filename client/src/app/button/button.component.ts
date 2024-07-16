@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import apiService from './../../services/apiService';
 
 @Component({
   selector: 'app-button',
@@ -8,7 +9,12 @@ import { Component } from '@angular/core';
   styleUrl: './button.component.css'
 })
 export class ButtonComponent {
-  onClick(): void {
-    alert('Button clicked!');
+  async onClick() {
+    try {
+      const text = await apiService.getText();
+      console.log('Response:', text); // Output the response to console, adjust as needed
+    } catch (error) {
+      console.error('Error:', error);
+    }
   }
 }
