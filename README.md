@@ -26,7 +26,7 @@ After that, we can use start the front-end server using the following:
 npm start
 ```
 
-If you start the front-end server, you will see that it listens at http://localhost:4200.
+If you start the front-end server, you will see that it listens at http://localhost:4200l.
 Navigate to this url in your browser.
 
 
