@@ -4,7 +4,7 @@
 
 ## Goal
 
-Create a single nucleotide polymorphism (SNP) variant for linking genetic mutations with genes through an amalgamation of different mappings.
+Create an app where single nucleotide polymorphism (SNP) (genetic mutations) are linked with genes through an amalgamation of different types of mappings.
 
 ## Set-Up Guide
 
@@ -13,6 +13,22 @@ To back-end uses SpringBoot framework. To start it, we can use the following:
 ```
 ./gradle bootRun
 ```
+The front-end is an Angular project. Before starting it, install the dependencies:
+
+```
+cd client
+npm install
+```
+
+After that, we can use start the front-end server using the following:
+
+```
+npm start
+```
+
+If you start the front-end server, you will see that it listens at http://localhost:4200.
+Navigate to this url in your browser.
+
 
 
 ## MoSCoW
