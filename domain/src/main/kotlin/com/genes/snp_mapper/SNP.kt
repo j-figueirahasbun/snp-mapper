@@ -6,9 +6,12 @@ class SNP (
     private var position: Int,
     private var referenceAllele: String,
     private var alternateAllele: String,
-
+    var gene: Gene? = null
     )
 {
+
+    constructor(rsId: String) : this(rsId, "unknown", 0, "N", "N")
+
     fun getRsID(): String {
      return rsId
     }
@@ -47,5 +50,9 @@ class SNP (
 
     fun setAlternateAllele(value: String) {
         alternateAllele = value
+    }
+
+    fun setGene(gene: Gene) {
+        this.gene = gene
     }
 }

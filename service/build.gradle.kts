@@ -19,10 +19,10 @@ repositories {
 dependencies {
     implementation(project(":domain"))
     implementation(project(":persistence"))
-// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
     implementation("org.springframework.boot:spring-boot-starter-web:3.3.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.3")
+    implementation("org.json:json:20240303")
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.1")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
