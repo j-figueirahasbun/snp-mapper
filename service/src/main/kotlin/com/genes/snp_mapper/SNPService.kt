@@ -1,11 +1,16 @@
 package com.genes.snp_mapper
 
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.*
+//import kotlinx.serialization.json.decodeFromJsonElement
+//import kotlinx.serialization.json.jsonArray
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.springframework.stereotype.Service
 import java.io.IOException
 
 // Data class for the JSON parsing
+@Serializable
 data class FetchResults (
     val total: Int,
     val otherRsIDs: List<String>,
@@ -13,12 +18,13 @@ data class FetchResults (
     val snpInfo: List<List<String>>
 )
 
+@Service
 class SNPService {
 
     //Create an okhttpclient instance which is used to execute the http request.
     private val client = OkHttpClient()
 
-    fun fetchSNPInformation(snp: String) : String {
+    fun fetchSNPInformation(snp: String): String {
 
         // Use the input SNP in the function in the REST API url
         val url = "https://clinicaltables.nlm.nih.gov/api/snps/v3/search?terms=${snp}"
@@ -39,19 +45,28 @@ class SNPService {
             val responseData = response.body?.string()
             // If it is not null...
             if (responseData != null) {
+                val jsonArray = Json.parseToJsonElement(responseData).jsonArray
                 // Parse the JSON response, decode it and match it with the fetch result structure defined above
-                val snpResult = Json.decodeFromString<FetchResults>(responseData)
+                val snpResult = mapJsonArrayToFetchResults(jsonArray)
                 // If the field we want is not empty (so there is data on the snp)
-                result = if (snpResult.snpInfo.isNotEmpty()) {
+                if (snpResult.snpInfo.isNotEmpty()) {
                     // We want the first result because that should be matching the provided rsID
                     val firstResult = snpResult.snpInfo[0]
-                    "rsId: ${firstResult[0]}, Chromosome: ${firstResult[1]}, Position: ${firstResult[2]}, " +
+                    result = "rsId: ${firstResult[0]}, Chromosome: ${firstResult[1]}, Position: ${firstResult[2]}, " +
                             "Alleles: ${firstResult[3]}, Gene: ${firstResult[4]}"
                 } else {
-                     "No results found for rsId $snp"
+                    result = "No results found for rsId $snp"
                 }
             }
         }
         return result ?: "Error fetching data"
+    }
+    private fun mapJsonArrayToFetchResults(jsonArray: JsonArray): FetchResults {
+        val total = jsonArray[0].jsonPrimitive.int
+        val otherRsIDs = jsonArray[1].jsonArray.map { it.jsonPrimitive.content }
+        val extraInfo = jsonArray[2].jsonPrimitive.contentOrNull
+        val snpInfo = jsonArray[3].jsonArray.map { it.jsonArray.map { it.jsonPrimitive.content } }
+
+        return FetchResults(total, otherRsIDs, extraInfo, snpInfo)
     }
 }

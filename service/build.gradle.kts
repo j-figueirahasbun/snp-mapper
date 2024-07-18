@@ -24,7 +24,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.3")
     implementation("org.json:json:20240303")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.1")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

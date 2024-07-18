@@ -1,0 +1,30 @@
+
+/* Style the button to look like a pill */
+.button-pill {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: rgba(195, 151, 232, 0.39);
+  color: rgba(122, 37, 194, 0.93);
+  border: 1px #007bff;
+  border-radius: 20px; /* Adjust the border radius to control pill shape */
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  margin-bottom: 10px; /* Adjust vertical spacing between pills */
+}
+
+/* Hover state */
+.button-pill:hover {
+  background-color: rgba(102, 37, 157, 0.39);
+}
+
+/* Space between text and icon */
+.button-pill span {
+  margin-right: 10px;
+}
+
+/* Align icon vertically */
+.button-pill svg {
+  vertical-align: middle;
+}

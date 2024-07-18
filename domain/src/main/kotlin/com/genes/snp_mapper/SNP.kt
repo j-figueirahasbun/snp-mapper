@@ -6,7 +6,7 @@ class SNP (
     private var position: Int,
     private var referenceAllele: String,
     private var alternateAllele: String,
-    var gene: Gene? = null
+//    var gene: Gene? = null
     )
 {
 
@@ -52,7 +52,7 @@ class SNP (
         alternateAllele = value
     }
 
-    fun setGene(gene: Gene) {
-        this.gene = gene
-    }
+//    fun setGene(gene: Gene) {
+//        this.gene = gene
+//    }
 }
