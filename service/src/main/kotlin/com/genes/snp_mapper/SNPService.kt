@@ -2,8 +2,6 @@ package com.genes.snp_mapper
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
-//import kotlinx.serialization.json.decodeFromJsonElement
-//import kotlinx.serialization.json.jsonArray
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.springframework.stereotype.Service
@@ -21,7 +19,7 @@ data class FetchResults (
 @Service
 class SNPService {
 
-    //Create an okhttpclient instance which is used to execute the http request.
+    //Create an OkHttpClient instance which is used to execute the http request.
     private val client = OkHttpClient()
 
     fun fetchSNPInformation(snp: String): String {
@@ -37,36 +35,51 @@ class SNPService {
 
         var result: String? = null
 
-        //This executes the request and automatically closes the response when done.
+        // This executes the request and automatically closes the response when done.
+        // This creates a new HTTP call using the request object, sends the HTTP request and return the HTTP response.
+        // use is a Kotlin extension function that ensures the response is closed after the block of code is executed.
         client.newCall(request).execute().use { response ->
+
+            //This checks if the response was successful, if not, it throws an IOException
             if (!response.isSuccessful) throw IOException(" Response was unsuccessful. Unexpected code $response")
 
-            // The response body of the JSON is a string so define it as string
+            // This extracts the body of the response as a string. It can be 'null' so its safely accessed using the ?
             val responseData = response.body?.string()
             // If it is not null...
             if (responseData != null) {
+                //Parse the response data string into a JSONArray using the JSON.parseToJsonElement method
                 val jsonArray = Json.parseToJsonElement(responseData).jsonArray
-                // Parse the JSON response, decode it and match it with the fetch result structure defined above
+                // This calls the mapJSONArrayToFetchResults function to map the array to a FetchResults object
                 val snpResult = mapJsonArrayToFetchResults(jsonArray)
-                // If the field we want is not empty (so there is data on the snp)
+                // This checks if the snpInfo list in the snpResult object is not empty
                 if (snpResult.snpInfo.isNotEmpty()) {
-                    // We want the first result because that should be matching the provided rsID
+                    // This extracts the first result from the snpInfo list
                     val firstResult = snpResult.snpInfo[0]
+                    // This constructs a result string using the information from the first SNP result
                     result = "rsId: ${firstResult[0]}, Chromosome: ${firstResult[1]}, Position: ${firstResult[2]}, " +
                             "Alleles: ${firstResult[3]}, Gene: ${firstResult[4]}"
                 } else {
+                    // If snpInfo is empty, it sets the result to a message saying there is no results found
                     result = "No results found for rsId $snp"
                 }
             }
         }
+        // returns the result. and if it is null it returns the following string:
         return result ?: "Error fetching data"
     }
+
+    // Function to map the array elements from the JSON to FetchResults object
     private fun mapJsonArrayToFetchResults(jsonArray: JsonArray): FetchResults {
+        // This extracts the total number of results from the first element
         val total = jsonArray[0].jsonPrimitive.int
+        // Extract a list of other rsIDs from the second element of the jsonArray.
         val otherRsIDs = jsonArray[1].jsonArray.map { it.jsonPrimitive.content }
+        // Extract the extra info if needed, and this can be null.
         val extraInfo = jsonArray[2].jsonPrimitive.contentOrNull
+        // Extract information from the 3rd element as a list of lists of strings from the 4th element
         val snpInfo = jsonArray[3].jsonArray.map { it.jsonArray.map { it.jsonPrimitive.content } }
 
+        // Returns a FetchResults object constructed with the extracted data
         return FetchResults(total, otherRsIDs, extraInfo, snpInfo)
     }
 }
