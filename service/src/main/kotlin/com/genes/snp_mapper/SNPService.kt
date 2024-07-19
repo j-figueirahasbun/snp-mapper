@@ -68,6 +68,50 @@ class SNPService {
         return result ?: "Error fetching data"
     }
 
+    fun getSNPCoordinates (snp: String): Pair<String, Int>? {
+        //REST API from Ensembl
+        val url = "http://rest.ensembl.org/variation/human/$snp?content-type=application/json"
+        //Make the request with the url
+        val request = Request.Builder().url(url).build()
+
+        // make the new call
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Unexpected code $response")
+
+            val responseData = response.body?.string()
+            if (responseData != null) {
+                val json = Json.parseToJsonElement(responseData).jsonObject
+                val location = json["mappings"]?.jsonArray?.firstOrNull()?.jsonObject
+                if (location != null) {
+                    val chromosome = location["seq_region_name"]?.jsonPrimitive?.content ?: return null
+                    val start = location["start"]?.jsonPrimitive?.int ?: return null
+                    return Pair(chromosome, start)
+                }
+            }
+        }
+        return null
+    }
+
+    fun positionalMappingNearVariant (coordinates: Pair<String, Int>, distance: Int = 10000): String {
+        val (chromosome, position) = coordinates
+        val start = (position-distance).coerceAtLeast(0)
+        val end = (position+distance)
+        val url = "https://rest.ensembl.org/overlap/region/human/$chromosome:$start-$end?feature=gene;content-type=application/json"
+
+        val request = Request.Builder().url(url).build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Unexpected code $response")
+
+            val responseData = response.body?.string()
+            if (responseData != null) {
+                return responseData
+            }
+        }
+        return "Error fetching data"
+    }
+
+
     // Function to map the array elements from the JSON to FetchResults object
     private fun mapJsonArrayToFetchResults(jsonArray: JsonArray): FetchResults {
         // This extracts the total number of results from the first element
