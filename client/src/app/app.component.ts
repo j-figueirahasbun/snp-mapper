@@ -12,5 +12,5 @@ import {TextBoxComponent} from "./text-box/text-box.component";
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  title = 'client';
+  title = 'John';
 }
