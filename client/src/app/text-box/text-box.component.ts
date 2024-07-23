@@ -17,7 +17,7 @@ import {NgIf} from "@angular/common"; // Adjust import as per your service defin
 })
 export class TextBoxComponent {
   inputSNP: string = '';
-  snpInfo: string = ''; // Define as per the expected response type
+  snpInfo: string = ' ' // Define as per the expected response type
 
   // constructor(private apiService) {} // Inject ApiService
 
@@ -25,6 +25,7 @@ export class TextBoxComponent {
     try {
       const response = await apiService.getSNPInfo(this.inputSNP); // Make the API call
       this.snpInfo = response; // Assuming response.data contains the result
+      console.log(response)
     } catch (error) {
       console.error('Error fetching SNP info:', error);
       this.snpInfo = `Error fetching SNP info for ${this.inputSNP}`;

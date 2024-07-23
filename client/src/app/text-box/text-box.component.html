@@ -1,9 +1,11 @@
 <div>
+  <h1></h1>
   <input type="text" [(ngModel)]="inputSNP" placeholder="Enter SNP rsID">
+  <h1> </h1>
   <button class="button-pill" (click)="onClick()">Fetch SNP Info</button>
 </div>
 
-<div *ngIf="snpInfo !== ''">
+<div *ngIf="snpInfo !== ' '">
   <h3>SNP Info:</h3>
   <p>{{ snpInfo }}</p>
 </div>
