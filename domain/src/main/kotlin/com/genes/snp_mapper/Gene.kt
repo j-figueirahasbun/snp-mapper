@@ -2,70 +2,115 @@ package com.genes.snp_mapper
 
 class Gene (
     private var geneId: String,
-    private var symbol: String,
-    private var chromosome: String,
-    private var startPosition: Int,
-    private var endPosition: Int,
-    private var bioType: String,
+    private var start: Int,
+    private var end: Int,
+    private var externalName: String,
+    private var strand: Int,
+    private var id: String,
+    private var transcript: String,
+    private var type: String,
+    private var description: String,
+    private var seqRegionName: String,
     private var mapping: String,
-)
-{
-    constructor(geneId: String, symbol: String, geneType: String) : this(geneId, "unknown", "unknown", 0, 0, "Unknown", "Unknown")
 
+    )
+
+{
     fun getGeneId(): String {
         return geneId
     }
 
-    fun getSymbol(): String {
-        return symbol
+    fun getStart(): Int {
+        return start
     }
 
-    fun getChromosome(): String {
-        return chromosome
+    fun getEnd(): Int {
+        return end
     }
 
-    fun getStartPosition(): Int {
-        return startPosition
+    fun getExternalName(): String {
+        return externalName
+    }
+    fun getStrand(): Int {
+        return strand
+    }
+    fun getID(): String {
+        return id
+    }
+    fun getTranscript(): String {
+        return transcript
+    }
+    fun getType(): String {
+        return type
+    }
+    fun getDescription(): String {
+        return description
     }
 
-    fun getEndPosition(): Int {
-        return endPosition
+    fun getSeqRegionName(): String {
+        return seqRegionName
     }
 
     fun getMapping(): String {
         return mapping
     }
 
-    fun getBioType(): String {
-        return bioType
-    }
-
-    fun setGeneId(value: String) {
+    fun setGeneID(value: String) {
         geneId = value
     }
 
-    fun setSymbol(value: String) {
-        symbol = value
+    fun setStart(value: Int) {
+        start = value
     }
 
-    fun setChromosome(value: String) {
-        chromosome = value
+    fun setEnd(value: Int) {
+        end = value
     }
 
-    fun setStartPosition(value: Int) {
-        startPosition = value
+    fun setExternalName(value: String) {
+        externalName = value
     }
 
-    fun setEndPosition(value: Int) {
-        endPosition = value
+    fun setStrand(value: Int) {
+        strand = value
+    }
+
+    fun setId(value: String) {
+        id = value
+    }
+
+    fun setType(value: String) {
+        type = value
+    }
+
+    fun setTranscript(value: String) {
+        transcript = value
+    }
+
+    fun setDescription(value: String) {
+        description = value
+    }
+
+    fun setSeqRegionName(value: String) {
+        seqRegionName = value
     }
 
     fun setMapping(value: String) {
         mapping = value
     }
 
-    fun setBioType(value: String) {
-        bioType = value
+    override fun toString(): String {
+        return "Gene ID: $geneId\n" +
+                "Start: $start\n" +
+                "End: $end\n" +
+                "External Name: $externalName\n" +
+                "Strand: $strand\n" +
+                "ID: $id\n" +
+                "Transcript: $transcript\n" +
+                "Type: $type\n" +
+                "Description: $description\n" +
+                "SeqRegionName: $seqRegionName\n" +
+                "Mapping: $mapping\n"
     }
 
 }

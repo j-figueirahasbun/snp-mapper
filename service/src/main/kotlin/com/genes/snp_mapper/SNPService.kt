@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.json.JSONArray
 import org.springframework.stereotype.Service
 import java.io.IOException
 
@@ -56,8 +57,17 @@ class SNPService {
                     // This extracts the first result from the snpInfo list
                     val firstResult = snpResult.snpInfo[0]
                     // This constructs a result string using the information from the first SNP result
-                    result = "rsId: ${firstResult[0]}, Chromosome: ${firstResult[1]}, Position: ${firstResult[2]}, " +
-                            "Alleles: ${firstResult[3]}, Gene: ${firstResult[4]}"
+                    val mappedSnp = SNP(firstResult[0], firstResult[1], firstResult[2].toInt(), firstResult[3].split("/")[0], firstResult[3].split("/")[1])
+                    val coordinates = Triple<String, String, Int> (mappedSnp.getRsID(), mappedSnp.getChromosome(), mappedSnp.getPosition())
+                    val geneData = positionalMappingNearVariant(coordinates)
+                    val genes = parseGeneData(geneData)
+
+                    val genesInfo = genes.joinToString(separator = "\n") { it.toString() }
+
+                    result = "rsId: ${mappedSnp.getRsID()}, Chromosome: ${mappedSnp.getChromosome()}, Position: ${mappedSnp.getPosition()}, " +
+                            "Reference allele: ${mappedSnp.getReferenceAllele()}, Alternate allele: ${mappedSnp.getAlternateAllele()}. " +
+                            "Genes at current position:\n$genesInfo"
+
                 } else {
                     // If snpInfo is empty, it sets the result to a message saying there is no results found
                     result = "No results found for rsId $snp"
@@ -68,29 +78,31 @@ class SNPService {
         return result ?: "Error fetching data"
     }
 
-    fun getSNPCoordinates (snp: String): Triple<String, String, Int>? {
-        //REST API from Ensembl
-        val url = "http://rest.ensembl.org/variation/human/$snp?content-type=application/json"
-        //Make the request with the url
-        val request = Request.Builder().url(url).build()
-
-        // make the new call
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw IOException("Unexpected code $response")
-
-            val responseData = response.body?.string()
-            if (responseData != null) {
-                val json = Json.parseToJsonElement(responseData).jsonObject
-                val location = json["mappings"]?.jsonArray?.firstOrNull()?.jsonObject
-                if (location != null) {
-                    val chromosome = location["seq_region_name"]?.jsonPrimitive?.content ?: return null
-                    val start = location["start"]?.jsonPrimitive?.int ?: return null
-                    return Triple(snp, chromosome, start)
-                }
-            }
-        }
-        return null
-    }
+//    fun getSNPCoordinates (snp: String): Triple<String, String, Int>? {
+//        //REST API from Ensembl
+//        val url = "http://rest.ensembl.org/variation/human/$snp?content-type=application/json"
+//        //Make the request with the url
+//        val request = Request.Builder().url(url).build()
+//
+//        // make the new call
+//        client.newCall(request).execute().use { response ->
+//            if (!response.isSuccessful) throw IOException("Unexpected code $response")
+//
+//            val responseData = response.body?.string()
+//            if (responseData != null) {
+//                val json = Json.parseToJsonElement(responseData).jsonObject
+//                val location = json["mappings"]?.jsonArray?.firstOrNull()?.jsonObject
+//                if (location != null) {
+//                    val chromosome = location["seq_region_name"]?.jsonPrimitive?.content ?: return null
+//                    val start = location["start"]?.jsonPrimitive?.int ?: return null
+//                    val snpWithCoordinates = Triple(snp, chromosome, start)
+//                    positionalMappingNearVariant(snpWithCoordinates)
+//                    return snpWithCoordinates
+//                }
+//            }
+//        }
+//        return null
+//    }
 
     fun positionalMappingNearVariant (coordinates: Triple<String, String, Int>, distance: Int = 10000): String {
         val (rsId, chromosome, position) = coordinates
@@ -112,7 +124,6 @@ class SNPService {
         return "Error fetching data"
     }
 
-
     // Function to map the array elements from the JSON to FetchResults object
     private fun mapJsonArrayToFetchResults(jsonArray: JsonArray): FetchResults {
         // This extracts the total number of results from the first element
@@ -127,4 +138,32 @@ class SNPService {
         // Returns a FetchResults object constructed with the extracted data
         return FetchResults(total, otherRsIDs, extraInfo, snpInfo)
     }
+
+
+    fun parseGeneData(responseData: String): List<Gene> {
+        val jsonArray = JSONArray(responseData)
+        val genes = mutableListOf<Gene>()
+        for (i in 0 until jsonArray.length()) {
+            val geneObject = jsonArray.getJSONObject(i)
+            val gene = Gene(
+                geneId = geneObject.getString("gene_id"),
+                start = geneObject.getInt("start"),
+                end = geneObject.getInt("end"),
+                externalName = geneObject.getString("external_name"),
+                strand = geneObject.getInt("strand"),
+                id = geneObject.getString("id"),
+                transcript = geneObject.getString("canonical_transcript"),
+                type = geneObject.getString("biotype"),
+                description = geneObject.getString("description"),
+                seqRegionName = geneObject.getString("seq_region_name"),
+                mapping = "positional"
+            )
+            genes.add(gene)
+        }
+
+        return genes
+    }
+
+
+
 }
