@@ -7,16 +7,12 @@ import org.springframework.stereotype.Service
 import java.io.IOException
 
 @Service
-class GeneService (
-
-)
-
-{
+class GeneService {
 
     //Create an OkHttpClient instance which is used to execute the http request.
     private val client = OkHttpClient()
 
-    fun positionalMappingNearVariant (coordinates: Triple<String, String, Int>, distance: Int = 10000): String {
+    fun positionalMappingNearVariant (coordinates: Triple<String, String, Int>, distance: Int = 10000): List<Gene> {
         val (rsId, chromosome, position) = coordinates
         val snp = rsId
         val start = (position-distance).coerceAtLeast(0)
@@ -30,13 +26,13 @@ class GeneService (
 
             val responseData = response.body?.string()
             if (responseData != null) {
-                return responseData
+                return parseGeneData(responseData, positional)
             }
         }
-        return "Error fetching data"
+        return emptyList()
     }
 
-    fun functionalMappingOfVariantUsingVEP(rsId: String): String{
+    fun functionalMappingOfVariantUsingVEP(rsId: String): List<Gene>{
         val url = "https://rest.ensembl.org/overlap/region/human/$rsId?content-type=application/json"
 
         val request = Request.Builder().url(url).build()
@@ -46,30 +42,29 @@ class GeneService (
 
             val responseData = response.body?.string()
             if (responseData != null) {
-                return responseData
+                return parseGeneData(responseData, functional)
             }
         }
-        return "Error fetching data"
+        return emptyList()
     }
 
-
-    fun parseGeneData(responseData: String): List<Gene> {
+    fun parseGeneData(responseData: String, mappingType: String): List<Gene> {
         val jsonArray = JSONArray(responseData)
         val genes = mutableListOf<Gene>()
         for (i in 0 until jsonArray.length()) {
             val geneObject = jsonArray.getJSONObject(i)
             val gene = Gene(
-                geneId = geneObject.getString("gene_id"),
-                start = geneObject.getInt("start"),
-                end = geneObject.getInt("end"),
-                externalName = geneObject.getString("external_name"),
-                strand = geneObject.getInt("strand"),
-                id = geneObject.getString("id"),
-                transcript = geneObject.getString("canonical_transcript"),
-                type = geneObject.getString("biotype"),
-                description = geneObject.getString("description"),
-                seqRegionName = geneObject.getString("seq_region_name"),
-                mapping = "positional"
+                geneId = geneObject.optString("gene_id"),
+                start = geneObject.optInt("start"),
+                end = geneObject.optInt("end"),
+                externalName = geneObject.optString("external_name"),
+                strand = geneObject.optInt("strand"),
+                id = geneObject.optString("id"),
+                transcript = geneObject.optString("canonical_transcript"),
+                type = geneObject.optString("biotype"),
+                description = geneObject.optString("description"),
+                seqRegionName = geneObject.optString("seq_region_name"),
+                mapping = mappingType
             )
             genes.add(gene)
         }
