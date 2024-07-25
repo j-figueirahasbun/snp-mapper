@@ -36,6 +36,22 @@ class GeneService (
         return "Error fetching data"
     }
 
+    fun functionalMappingOfVariantUsingVEP(rsId: String): String{
+        val url = "https://rest.ensembl.org/overlap/region/human/$rsId?content-type=application/json"
+
+        val request = Request.Builder().url(url).build()
+
+        client.newCall(request).execute().use { response ->
+            if(!response.isSuccessful) throw IOException("Unexpected code $response")
+
+            val responseData = response.body?.string()
+            if (responseData != null) {
+                return responseData
+            }
+        }
+        return "Error fetching data"
+    }
+
 
     fun parseGeneData(responseData: String): List<Gene> {
         val jsonArray = JSONArray(responseData)
