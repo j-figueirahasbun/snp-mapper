@@ -4,9 +4,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.json.JSONArray
 import org.springframework.stereotype.Service
 import java.io.IOException
+
 
 // Data class for the JSON parsing
 @Serializable
@@ -22,6 +22,7 @@ class SNPService {
 
     //Create an OkHttpClient instance which is used to execute the http request.
     private val client = OkHttpClient()
+    private val geneService = GeneService()
 
     fun fetchSNPInformation(snp: String): String {
 
@@ -59,8 +60,8 @@ class SNPService {
                     // This constructs a result string using the information from the first SNP result
                     val mappedSnp = SNP(firstResult[0], firstResult[1], firstResult[2].toInt(), firstResult[3].split("/")[0], firstResult[3].split("/")[1])
                     val coordinates = Triple<String, String, Int> (mappedSnp.getRsID(), mappedSnp.getChromosome(), mappedSnp.getPosition())
-                    val geneData = positionalMappingNearVariant(coordinates)
-                    val genes = parseGeneData(geneData)
+                    val geneData = geneService.positionalMappingNearVariant(coordinates)
+                    val genes = geneService.parseGeneData(geneData)
 
                     val genesInfo = genes.joinToString(separator = "\n") { it.toString() }
 
@@ -77,6 +78,22 @@ class SNPService {
         // returns the result. and if it is null it returns the following string:
         return result ?: "Error fetching data"
     }
+
+    // Function to map the array elements from the JSON to FetchResults object
+    private fun mapJsonArrayToFetchResults(jsonArray: JsonArray): FetchResults {
+        // This extracts the total number of results from the first element
+        val total = jsonArray[0].jsonPrimitive.int
+        // Extract a list of other rsIDs from the second element of the jsonArray.
+        val otherRsIDs = jsonArray[1].jsonArray.map { it.jsonPrimitive.content }
+        // Extract the extra info if needed, and this can be null.
+        val extraInfo = jsonArray[2].jsonPrimitive.contentOrNull
+        // Extract information from the 3rd element as a list of lists of strings from the 4th element
+        val snpInfo = jsonArray[3].jsonArray.map { it.jsonArray.map { it.jsonPrimitive.content } }
+
+        // Returns a FetchResults object constructed with the extracted data
+        return FetchResults(total, otherRsIDs, extraInfo, snpInfo)
+    }
+
 
 //    fun getSNPCoordinates (snp: String): Triple<String, String, Int>? {
 //        //REST API from Ensembl
@@ -103,67 +120,5 @@ class SNPService {
 //        }
 //        return null
 //    }
-
-    fun positionalMappingNearVariant (coordinates: Triple<String, String, Int>, distance: Int = 10000): String {
-        val (rsId, chromosome, position) = coordinates
-        val snp = rsId
-        val start = (position-distance).coerceAtLeast(0)
-        val end = (position+distance)
-        val url = "https://rest.ensembl.org/overlap/region/human/$chromosome:$start-$end?feature=gene;content-type=application/json"
-
-        val request = Request.Builder().url(url).build()
-
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw IOException("Unexpected code $response")
-
-            val responseData = response.body?.string()
-            if (responseData != null) {
-                return responseData
-            }
-        }
-        return "Error fetching data"
-    }
-
-    // Function to map the array elements from the JSON to FetchResults object
-    private fun mapJsonArrayToFetchResults(jsonArray: JsonArray): FetchResults {
-        // This extracts the total number of results from the first element
-        val total = jsonArray[0].jsonPrimitive.int
-        // Extract a list of other rsIDs from the second element of the jsonArray.
-        val otherRsIDs = jsonArray[1].jsonArray.map { it.jsonPrimitive.content }
-        // Extract the extra info if needed, and this can be null.
-        val extraInfo = jsonArray[2].jsonPrimitive.contentOrNull
-        // Extract information from the 3rd element as a list of lists of strings from the 4th element
-        val snpInfo = jsonArray[3].jsonArray.map { it.jsonArray.map { it.jsonPrimitive.content } }
-
-        // Returns a FetchResults object constructed with the extracted data
-        return FetchResults(total, otherRsIDs, extraInfo, snpInfo)
-    }
-
-
-    fun parseGeneData(responseData: String): List<Gene> {
-        val jsonArray = JSONArray(responseData)
-        val genes = mutableListOf<Gene>()
-        for (i in 0 until jsonArray.length()) {
-            val geneObject = jsonArray.getJSONObject(i)
-            val gene = Gene(
-                geneId = geneObject.getString("gene_id"),
-                start = geneObject.getInt("start"),
-                end = geneObject.getInt("end"),
-                externalName = geneObject.getString("external_name"),
-                strand = geneObject.getInt("strand"),
-                id = geneObject.getString("id"),
-                transcript = geneObject.getString("canonical_transcript"),
-                type = geneObject.getString("biotype"),
-                description = geneObject.getString("description"),
-                seqRegionName = geneObject.getString("seq_region_name"),
-                mapping = "positional"
-            )
-            genes.add(gene)
-        }
-
-        return genes
-    }
-
-
 
 }
