@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.io.IOException
 
@@ -22,6 +23,8 @@ class SNPService {
 
     //Create an OkHttpClient instance which is used to execute the http request.
     private val client = OkHttpClient()
+
+    @Autowired
     private val geneService = GeneService()
 
     fun fetchSNPInformation(snp: String): String {
@@ -60,14 +63,16 @@ class SNPService {
                     // This constructs a result string using the information from the first SNP result
                     val mappedSnp = SNP(firstResult[0], firstResult[1], firstResult[2].toInt(), firstResult[3].split("/")[0], firstResult[3].split("/")[1])
                     val coordinates = Triple<String, String, Int> (mappedSnp.getRsID(), mappedSnp.getChromosome(), mappedSnp.getPosition())
-                    val geneData = geneService.positionalMappingNearVariant(coordinates)
-                    val genes = geneService.parseGeneData(geneData)
+                    val positionalGeneData = geneService.positionalMappingNearVariant(coordinates)
+                    val functionalGeneData = geneService.functionalMappingOfVariantUsingVEP(snp)
+//                    val genes = geneService.parseGeneData(geneData)
 
-                    val genesInfo = genes.joinToString(separator = "\n") { it.toString() }
+                    val positionalGenesInfo = positionalGeneData.joinToString(separator = "\n") { it.toString() }
+                    val functionalGenesInfo = functionalGeneData.joinToString(separator = "\n") { it.toString() }
 
                     result = "rsId: ${mappedSnp.getRsID()}, Chromosome: ${mappedSnp.getChromosome()}, Position: ${mappedSnp.getPosition()}, " +
-                            "Reference allele: ${mappedSnp.getReferenceAllele()}, Alternate allele: ${mappedSnp.getAlternateAllele()}. " +
-                            "Genes at current position:\n$genesInfo"
+                            "Reference allele: ${mappedSnp.getReferenceAllele()}, Alternate allele: ${mappedSnp.getAlternateAllele()}. "  +
+                             "Genes at current position:\n$positionalGenesInfo " + "Functionally mapped genes: \n$functionalGenesInfo "
 
                 } else {
                     // If snpInfo is empty, it sets the result to a message saying there is no results found
@@ -93,32 +98,5 @@ class SNPService {
         // Returns a FetchResults object constructed with the extracted data
         return FetchResults(total, otherRsIDs, extraInfo, snpInfo)
     }
-
-
-//    fun getSNPCoordinates (snp: String): Triple<String, String, Int>? {
-//        //REST API from Ensembl
-//        val url = "http://rest.ensembl.org/variation/human/$snp?content-type=application/json"
-//        //Make the request with the url
-//        val request = Request.Builder().url(url).build()
-//
-//        // make the new call
-//        client.newCall(request).execute().use { response ->
-//            if (!response.isSuccessful) throw IOException("Unexpected code $response")
-//
-//            val responseData = response.body?.string()
-//            if (responseData != null) {
-//                val json = Json.parseToJsonElement(responseData).jsonObject
-//                val location = json["mappings"]?.jsonArray?.firstOrNull()?.jsonObject
-//                if (location != null) {
-//                    val chromosome = location["seq_region_name"]?.jsonPrimitive?.content ?: return null
-//                    val start = location["start"]?.jsonPrimitive?.int ?: return null
-//                    val snpWithCoordinates = Triple(snp, chromosome, start)
-//                    positionalMappingNearVariant(snpWithCoordinates)
-//                    return snpWithCoordinates
-//                }
-//            }
-//        }
-//        return null
-//    }
 
 }
