@@ -9,7 +9,6 @@ import java.io.IOException
 @Service
 class GeneService {
 
-    //Create an OkHttpClient instance which is used to execute the http request.
     private val client = OkHttpClient()
 
     fun positionalMappingNearVariant (coordinates: Triple<String, String, Int>, distance: Int = 10000): List<Gene> {
@@ -26,14 +25,14 @@ class GeneService {
 
             val responseData = response.body?.string()
             if (responseData != null) {
-                return parseGeneData(responseData, positional)
+                return parseGeneDataPositional(responseData)
             }
         }
         return emptyList()
     }
 
     fun functionalMappingOfVariantUsingVEP(rsId: String): List<Gene>{
-        val url = "https://rest.ensembl.org/overlap/region/human/$rsId?content-type=application/json"
+        val url = "https://rest.ensembl.org//vep/human/id/$rsId?content-type=application/json"
 
         val request = Request.Builder().url(url).build()
 
@@ -42,13 +41,13 @@ class GeneService {
 
             val responseData = response.body?.string()
             if (responseData != null) {
-                return parseGeneData(responseData, functional)
+                return parseGeneDataFunctional(responseData)
             }
         }
         return emptyList()
     }
 
-    fun parseGeneData(responseData: String, mappingType: String): List<Gene> {
+    fun parseGeneDataPositional(responseData: String): List<Gene> {
         val jsonArray = JSONArray(responseData)
         val genes = mutableListOf<Gene>()
         for (i in 0 until jsonArray.length()) {
@@ -64,9 +63,40 @@ class GeneService {
                 type = geneObject.optString("biotype"),
                 description = geneObject.optString("description"),
                 seqRegionName = geneObject.optString("seq_region_name"),
-                mapping = mappingType
+                mapping = "positional"
             )
             genes.add(gene)
+        }
+
+        return genes
+    }
+
+    fun parseGeneDataFunctional(responseData:String): List<Gene> {
+        val jsonArray = JSONArray(responseData)
+        val genes = mutableListOf<Gene>()
+        for (i in 0 until jsonArray.length()) {
+            val variantObject = jsonArray.getJSONObject(i)
+            val transcriptConsequences = variantObject.optJSONArray("transcript_consequences")
+
+            if (transcriptConsequences != null) {
+                for (j in 0 until transcriptConsequences.length()) {
+                    val transcriptObject = transcriptConsequences.getJSONObject(j)
+                    val gene = Gene(
+                        geneId = transcriptObject.optString("gene_id"),
+                        start = variantObject.optInt("start"), // Use start from the variant level
+                        end = variantObject.optInt("end"), // Use end from the variant level
+                        externalName = transcriptObject.optString("gene_symbol"),
+                        strand = transcriptObject.optInt("strand"),
+                        id = variantObject.optString("id"),
+                        transcript = transcriptObject.optString("transcript_id"),
+                        type = transcriptObject.optString("biotype"),
+                        description = transcriptObject.optJSONArray("consequence_terms")?.join(", ") ?: "N/A",
+                        seqRegionName = variantObject.optString("seq_region_name"),
+                        mapping = "functional"
+                    )
+                    genes.add(gene)
+                }
+            }
         }
 
         return genes
