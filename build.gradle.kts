@@ -36,3 +36,7 @@ kotlin {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+springBoot {
+	mainClass.set("com.genes.snp_mapper.SnpMapperApplication")  // Specify the main class
+}
