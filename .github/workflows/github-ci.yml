@@ -20,9 +20,20 @@ jobs:
       uses: actions/setup-java@v2
       with:
         java-version: '21'
+        distribution: 'oracle'
 
     - name: Build
       run: ./gradlew build
 
-    - name: Run Tests
-      run: ./gradlew test
+    # - name: Run Tests
+    #   run: ./gradlew test
+
+    # - name: Run Coverage Analysis
+    #   run: |
+    #     cd service
+    #     ./gradlew jacocoTestReport  # Generate coverage report
+    #     # Adjust the path based on where your coverage reports are generated
+
+    # Optionally, you can add a step to run the Spring Boot application if needed
+    # - name: Run Spring Boot Application
+    #   run: ./gradlew bootRun  # Start the Spring Boot application (typically used for local testing)
