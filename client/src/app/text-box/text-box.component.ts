@@ -5,15 +5,14 @@ import {NgIf} from "@angular/common"; // Adjust import as per your service defin
 
 @Component({
   selector: 'app-text-box',
-  // @ts-ignore
-  // imports: [apiService, ],
   templateUrl: './text-box.component.html',
   standalone: true,
   imports: [
     FormsModule,
     NgIf
   ],
-  styleUrls: ['./text-box.component.css']
+  styleUrls: ['./text-box.component.css'],
+
 })
 export class TextBoxComponent {
   inputSNP: string = '';

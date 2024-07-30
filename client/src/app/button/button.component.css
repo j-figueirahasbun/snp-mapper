@@ -4,8 +4,8 @@
 .button-pill {
   display: inline-block;
   padding: 8px 16px;
-  background-color: rgba(195, 151, 232, 0.39);
-  color: rgba(122, 37, 194, 0.93);
+  background-color: rgba(193, 206, 237, 0.39);
+  color: rgba(198, 204, 214, 0.93);
   border: 1px #007bff;
   border-radius: 20px; /* Adjust the border radius to control pill shape */
   text-decoration: none;
@@ -17,7 +17,7 @@
 
 /* Hover state */
 .button-pill:hover {
-  background-color: rgba(102, 37, 157, 0.39);
+  background-color: rgba(162, 196, 234, 0.39);
 }
 
 /* Space between text and icon */

@@ -3,9 +3,9 @@
 .button-pill {
   display: inline-block;
   padding: 8px 16px;
-  background-color: rgba(195, 151, 232, 0.39);
-  color: rgba(122, 37, 194, 0.93);
-  border: 1px #007bff;
+  background-color: #716a61;
+  color: #FAEBD7FF;
+  border: 1px #d8cbba;
   border-radius: 20px; /* Adjust the border radius to control pill shape */
   text-decoration: none;
   font-size: 14px;
@@ -16,7 +16,7 @@
 
 /* Hover state */
 .button-pill:hover {
-  background-color: rgba(102, 37, 157, 0.39);
+  background-color: #938a7e;
 }
 
 /* Space between text and icon */
@@ -27,4 +27,17 @@
 /* Align icon vertically */
 .button-pill svg {
   vertical-align: middle;
+}
+
+input[type="text"] {
+  border:solid 1px var(--primary-color);
+  padding: 10px;
+  border-radius: 8px;
+  margin: 4px;
+  display:inline-block;
+  width: 100%;
+}
+
+.textbox {
+  margin-top: 10px;
 }
