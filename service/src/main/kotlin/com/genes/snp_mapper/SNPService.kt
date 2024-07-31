@@ -16,7 +16,7 @@ class SNPService {
         val request = snpInfoRequest(snp)
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response was unsuccessful from Clinical Tables:  $response")
-            return mapJsonArrayToSnp(parseResponseToJsonArray(response))
+            return mapJsonArrayToSnp(parseSNPInformationResponseToJsonArray(response))
         }
     }
 
@@ -24,7 +24,7 @@ class SNPService {
         return Request.Builder().url("https://clinicaltables.nlm.nih.gov/api/snps/v3/search?terms=${snp}").build()
     }
 
-    private fun parseResponseToJsonArray (response: Response) : JsonArray {
+    private fun parseSNPInformationResponseToJsonArray (response: Response) : JsonArray {
         return response.body!!.string().let{Json.parseToJsonElement(it).jsonArray}
     }
 
@@ -37,6 +37,14 @@ class SNPService {
             referenceAllele = resultSNP[3].jsonPrimitive.content.split("/")[0],
             alternateAllele = resultSNP[3].jsonPrimitive.content.split("/")[1],
         )
+    }
+
+    fun obtainSNPCoordinates(snp: String) : Pair<String, Int> {
+        val request = snpInfoRequest(snp)
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Response was unsuccessful from Clinical Tables:  $response")
+            return Pair(mapJsonArrayToSnp(parseSNPInformationResponseToJsonArray(response)).chromosome, mapJsonArrayToSnp(parseSNPInformationResponseToJsonArray(response)).position)
+        }
     }
 
 }
