@@ -49,6 +49,11 @@ class GeneService {
         )
     }
 
+    private fun geneFunctionalRequest(rsId : String): Request {
+        val url = "https://rest.ensembl.org//vep/human/id/$rsId?content-type=application/json"
+        return Request.Builder().url(url).build()
+    }
+
     //TODO: refactor functional mapping
 //    fun functionalMappingOfVariantUsingVEP(rsId: String): List<Gene>{
 //        val url = "https://rest.ensembl.org//vep/human/id/$rsId?content-type=application/json"
