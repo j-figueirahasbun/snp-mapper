@@ -3,10 +3,10 @@ package com.genes.snp_mapper
 import kotlinx.serialization.Serializable
 
 @Serializable
-class Gene (
-    private var snp: String,
-    private var symbol: String,
-    private var type: String,
+data class Gene (
+    private val snp: String,
+    private var symbol: String? = "Not Available",
+    private var type: String? = "Not Available",
     private var mappingType: String,
     )
 {

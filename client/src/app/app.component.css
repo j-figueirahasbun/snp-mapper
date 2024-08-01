@@ -59,7 +59,7 @@ p {
 
 .home-background {
   background-color: rgba(240, 240, 240, 0); /* or any desired color */
-  background-image: url('C:/Users/Johnn/Documents/Code/snp-mapper/client/public/warren-umoh--qycBqByWIY-unsplash.jpg'); /* path to your image */
+  background-image: url('./../../public/warren-umoh--qycBqByWIY-unsplash.jpg'); /* path to your image */
   background-size: cover;
   /*background-position: center;*/
   height: 100vh; /* full viewport height */
