@@ -55,6 +55,7 @@ class GeneService {
     }
 
     //TODO: refactor functional mapping
+    //Test git account commit
 //    fun functionalMappingOfVariantUsingVEP(rsId: String): List<Gene>{
 //        val url = "https://rest.ensembl.org//vep/human/id/$rsId?content-type=application/json"
 //
