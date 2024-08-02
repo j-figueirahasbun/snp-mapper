@@ -82,6 +82,66 @@ class GeneService {
     }
 
     //TODO: eQTL mapping, first https://gtexportal.org/api/v2/dataset/variant?&snpId=rs4767032&page=0&itemsPerPage=250 then with the 'variantId' obtained
-    //TODO: https://gtexportal.org/api/v2/association/singleTissueEqtl?variantId=chr12_112925272_T_G_b38&tissueSiteDetailId=Adipose_Subcutaneous&tissueSiteDetailId=Adipose_Visceral_Omentum&tissueSiteDetailId=Adrenal_Gland&tissueSiteDetailId=Artery_Aorta&tissueSiteDetailId=Artery_Coronary&tissueSiteDetailId=Artery_Tibial&tissueSiteDetailId=Bladder&tissueSiteDetailId=Brain_Amygdala&tissueSiteDetailId=Brain_Anterior_cingulate_cortex_BA24&tissueSiteDetailId=Brain_Caudate_basal_ganglia&tissueSiteDetailId=Brain_Cerebellar_Hemisphere&tissueSiteDetailId=Brain_Cerebellum&tissueSiteDetailId=Brain_Cortex&tissueSiteDetailId=Brain_Frontal_Cortex_BA9&tissueSiteDetailId=Brain_Hippocampus&tissueSiteDetailId=Brain_Hypothalamus&tissueSiteDetailId=Brain_Nucleus_accumbens_basal_ganglia&tissueSiteDetailId=Brain_Putamen_basal_ganglia&tissueSiteDetailId=Brain_Spinal_cord_cervical_c-1&tissueSiteDetailId=Brain_Substantia_nigra&tissueSiteDetailId=Breast_Mammary_Tissue&tissueSiteDetailId=Cells_EBV-transformed_lymphocytes&tissueSiteDetailId=Cells_Cultured_fibroblasts&tissueSiteDetailId=Cervix_Ectocervix&tissueSiteDetailId=Cervix_Endocervix&tissueSiteDetailId=Colon_Sigmoid&tissueSiteDetailId=Colon_Transverse&tissueSiteDetailId=Esophagus_Gastroesophageal_Junction&tissueSiteDetailId=Esophagus_Mucosa&tissueSiteDetailId=Esophagus_Muscularis&tissueSiteDetailId=Fallopian_Tube&tissueSiteDetailId=Heart_Atrial_Appendage&tissueSiteDetailId=Heart_Left_Ventricle&tissueSiteDetailId=Kidney_Cortex&tissueSiteDetailId=Kidney_Medulla&tissueSiteDetailId=Liver&tissueSiteDetailId=Lung&tissueSiteDetailId=Minor_Salivary_Gland&tissueSiteDetailId=Muscle_Skeletal&tissueSiteDetailId=Nerve_Tibial&tissueSiteDetailId=Ovary&tissueSiteDetailId=Pancreas&tissueSiteDetailId=Pituitary&tissueSiteDetailId=Prostate&tissueSiteDetailId=Skin_Not_Sun_Exposed_Suprapubic&tissueSiteDetailId=Skin_Sun_Exposed_Lower_leg&tissueSiteDetailId=Small_Intestine_Terminal_Ileum&tissueSiteDetailId=Spleen&tissueSiteDetailId=Stomach&tissueSiteDetailId=Testis&tissueSiteDetailId=Thyroid&tissueSiteDetailId=Uterus&tissueSiteDetailId=Vagina&tissueSiteDetailId=Whole_Blood&page=0&itemsPerPage=250
-    // ^All tissues
+
+    private fun obtainGTExVariantId (snp: String): String {
+        val url = "https://gtexportal.org/api/v2/dataset/variant?&snpId=$snp&page=0&itemsPerPage=250"
+        val gtexVariantId : String = "Not available"
+        client.newCall(Request.Builder().url(url).build()).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Response from : $response")
+            val responseInArray = response.body!!.string().let { Json.parseToJsonElement(it).jsonArray }
+            val gtexVariantId = responseInArray[0].jsonObject["variantId"]?.jsonPrimitive?.content
+        }
+        return gtexVariantId
+    }
+
+    private fun geneEQTLRequest(gtexVariantId: String): Request {
+        val url = "https://gtexportal.org/api/v2/association/singleTissueEqtl?variantId=$gtexVariantId&tissueSiteDetailId=Adipose_Subcutaneous&tissueSiteDetailId=Adipose_Visceral_Omentum&tissueSiteDetailId=Adrenal_Gland&tissueSiteDetailId=Artery_Aorta&tissueSiteDetailId=Artery_Coronary&tissueSiteDetailId=Artery_Tibial&tissueSiteDetailId=Bladder&tissueSiteDetailId=Brain_Amygdala&tissueSiteDetailId=Brain_Anterior_cingulate_cortex_BA24&tissueSiteDetailId=Brain_Caudate_basal_ganglia&tissueSiteDetailId=Brain_Cerebellar_Hemisphere&tissueSiteDetailId=Brain_Cerebellum&tissueSiteDetailId=Brain_Cortex&tissueSiteDetailId=Brain_Frontal_Cortex_BA9&tissueSiteDetailId=Brain_Hippocampus&tissueSiteDetailId=Brain_Hypothalamus&tissueSiteDetailId=Brain_Nucleus_accumbens_basal_ganglia&tissueSiteDetailId=Brain_Putamen_basal_ganglia&tissueSiteDetailId=Brain_Spinal_cord_cervical_c-1&tissueSiteDetailId=Brain_Substantia_nigra&tissueSiteDetailId=Breast_Mammary_Tissue&tissueSiteDetailId=Cells_EBV-transformed_lymphocytes&tissueSiteDetailId=Cells_Cultured_fibroblasts&tissueSiteDetailId=Cervix_Ectocervix&tissueSiteDetailId=Cervix_Endocervix&tissueSiteDetailId=Colon_Sigmoid&tissueSiteDetailId=Colon_Transverse&tissueSiteDetailId=Esophagus_Gastroesophageal_Junction&tissueSiteDetailId=Esophagus_Mucosa&tissueSiteDetailId=Esophagus_Muscularis&tissueSiteDetailId=Fallopian_Tube&tissueSiteDetailId=Heart_Atrial_Appendage&tissueSiteDetailId=Heart_Left_Ventricle&tissueSiteDetailId=Kidney_Cortex&tissueSiteDetailId=Kidney_Medulla&tissueSiteDetailId=Liver&tissueSiteDetailId=Lung&tissueSiteDetailId=Minor_Salivary_Gland&tissueSiteDetailId=Muscle_Skeletal&tissueSiteDetailId=Nerve_Tibial&tissueSiteDetailId=Ovary&tissueSiteDetailId=Pancreas&tissueSiteDetailId=Pituitary&tissueSiteDetailId=Prostate&tissueSiteDetailId=Skin_Not_Sun_Exposed_Suprapubic&tissueSiteDetailId=Skin_Sun_Exposed_Lower_leg&tissueSiteDetailId=Small_Intestine_Terminal_Ileum&tissueSiteDetailId=Spleen&tissueSiteDetailId=Stomach&tissueSiteDetailId=Testis&tissueSiteDetailId=Thyroid&tissueSiteDetailId=Uterus&tissueSiteDetailId=Vagina&tissueSiteDetailId=Whole_Blood&page=0&itemsPerPage=250"
+        return Request.Builder().url(url).build()
+    }
+
+    private fun mapEQTLResultsArrayToGenes ( jsonArray: JsonArray) : List<Gene> {
+        val genes = mutableListOf<Gene>()
+        jsonArray.forEach{ mappingElement ->
+            val mappingElement = mappingElement.jsonObject
+            val gene = Gene (
+                snp = mappingElement["snpId"]!!.jsonPrimitive.content,
+                symbol = mappingElement["geneSymbol"]!!.jsonPrimitive?.content,
+                type = mappingElement["tissueSiteDetailId"]!!.jsonPrimitive?.content,
+                mappingType = "eQTL Mapping"
+            )
+            genes.add(gene)
+        }
+        return genes
+    }
+
+    fun eQTLMapping (snp: String): List<Gene> {
+        val request = geneEQTLRequest(obtainGTExVariantId(snp))
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IOException("Response from GTEx database was unsuccessful: $response")
+            return mapEQTLResultsArrayToGenes(parseMappingResponseToJsonArray(response))
+
+        }
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
