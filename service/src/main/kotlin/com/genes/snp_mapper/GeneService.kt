@@ -71,8 +71,8 @@ class GeneService {
 
             val gene = Gene(
                 snp = rsId,
-                symbol = transcriptElement.jsonObject["gene_symbol"]?.jsonPrimitive?.content,
-                type = transcriptElement.jsonObject["biotype"]?.jsonPrimitive?.content,
+                symbol = transcriptElement.jsonObject["gene_symbol"]!!.jsonPrimitive!!.content,
+                type = transcriptElement.jsonObject["biotype"]!!.jsonPrimitive!!.content,
                 mappingType = "Functional"
             )
 
@@ -80,8 +80,6 @@ class GeneService {
         }
         return genes
     }
-
-    //TODO: eQTL mapping, first https://gtexportal.org/api/v2/dataset/variant?&snpId=rs4767032&page=0&itemsPerPage=250 then with the 'variantId' obtained
 
     private fun obtainGTExVariantId (snp: String): String {
         val url = "https://gtexportal.org/api/v2/dataset/variant?&snpId=$snp&page=0&itemsPerPage=250"
@@ -105,8 +103,8 @@ class GeneService {
             val mappingElement = mappingElement.jsonObject
             val gene = Gene (
                 snp = mappingElement["snpId"]!!.jsonPrimitive.content,
-                symbol = mappingElement["geneSymbol"]!!.jsonPrimitive?.content,
-                type = mappingElement["tissueSiteDetailId"]!!.jsonPrimitive?.content,
+                symbol = mappingElement["geneSymbol"]!!.jsonPrimitive!!.content,
+                type = mappingElement["tissueSiteDetailId"]!!.jsonPrimitive!!.content,
                 mappingType = "eQTL Mapping"
             )
             genes.add(gene)
@@ -119,9 +117,6 @@ class GeneService {
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response from GTEx database was unsuccessful: $response")
             return mapEQTLResultsArrayToGenes(parseMappingResponseToJsonArray(response))
-
         }
     }
-
 }
-

@@ -43,7 +43,8 @@ class SNPService {
         val request = snpInfoRequest(snp)
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response was unsuccessful from Clinical Tables:  $response")
-            return Pair(mapJsonArrayToSnp(parseSNPInformationResponseToJsonArray(response)).chromosome, mapJsonArrayToSnp(parseSNPInformationResponseToJsonArray(response)).position)
+            return Pair(mapJsonArrayToSnp(parseSNPInformationResponseToJsonArray(response)).chromosome,
+                mapJsonArrayToSnp(parseSNPInformationResponseToJsonArray(response)).position)
         }
     }
 
