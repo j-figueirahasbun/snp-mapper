@@ -41,7 +41,6 @@ class SNPService {
     }
 
     private fun mapJsonArrayToSnp(jsonArray: JsonArray): SNP {
-        println(jsonArray)
         val resultSNP = jsonArray
         return SNP(
             rsId = resultSNP[0].jsonPrimitive.content,

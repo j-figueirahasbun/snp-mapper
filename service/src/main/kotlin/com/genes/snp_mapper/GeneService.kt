@@ -21,7 +21,6 @@ class GeneService {
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response from ENSEMBL was unsuccessful: $response")
-            println(response.body)
             val parsedResponse = parseMappingResponseToJsonArray(response)
             return mapPositionalJsonArrayResultsToGene(parsedResponse, snp)
         }
@@ -43,10 +42,10 @@ class GeneService {
     }
 
     private fun mapPositionalJsonArrayResultsToGene(jsonArray: JsonArray, rsId: String): Gene {
-        val resultingGene = jsonArray[1].jsonObject
+        val resultingGene = jsonArray[0].jsonObject
         return Gene(
             snp = rsId,
-            symbol = resultingGene["external_name"]?.jsonPrimitive?.content ?: "Not Available",
+            symbol = resultingGene["external_name"]?.jsonPrimitive?.content ?: "No symbol Available",
             type = resultingGene["biotype"]?.jsonPrimitive?.content ?: "Not Available",
             mappingType = "Positional",
         )
