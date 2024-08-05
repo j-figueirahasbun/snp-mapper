@@ -28,7 +28,12 @@ class SNPService {
         //println(response.body!!.string().let{Json.parseToJsonElement(it).jsonArray})
         val jsonResponse = response.body!!.string().let{Json.parseToJsonElement(it)}
         if (jsonResponse is JsonArray && jsonResponse.size >= 4){
-            return jsonResponse[3].jsonArray
+            val snpDataArray = jsonResponse[3]
+            if (snpDataArray is JsonArray) {
+                return snpDataArray[0] as JsonArray
+            } else {
+                throw IllegalStateException("The fourth element is not a json array")
+            }
         } else {
             throw IllegalStateException("Unexpected json structure")
         }
@@ -37,22 +42,23 @@ class SNPService {
 
     private fun mapJsonArrayToSnp(jsonArray: JsonArray): SNP {
         println(jsonArray)
-        val resultSNP = jsonArray[3].jsonArray[0].jsonArray
+        val resultSNP = jsonArray
         return SNP(
             rsId = resultSNP[0].jsonPrimitive.content,
             chromosome = resultSNP[1].jsonPrimitive.content,
-            position = resultSNP[2].jsonPrimitive.int,
+            position = resultSNP[2].jsonPrimitive.content,
             referenceAllele = resultSNP[3].jsonPrimitive.content.split("/")[0],
             alternateAllele = resultSNP[3].jsonPrimitive.content.split("/")[1],
         )
     }
 
-    fun obtainSNPCoordinates(snp: String) : Pair<String, Int> {
+    fun obtainSNPCoordinates(snp: String) : Pair<String, String> {
         val request = snpInfoRequest(snp)
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response was unsuccessful from Clinical Tables:  $response")
-            return Pair(mapJsonArrayToSnp(parseSNPInformationResponseToJsonArray(response)).chromosome,
-                mapJsonArrayToSnp(parseSNPInformationResponseToJsonArray(response)).position)
+            val parsedResponse = parseSNPInformationResponseToJsonArray(response)
+            val coordinatespair = Pair(mapJsonArrayToSnp(parsedResponse).chromosome, mapJsonArrayToSnp(parsedResponse).position)
+            return coordinatespair
         }
     }
 

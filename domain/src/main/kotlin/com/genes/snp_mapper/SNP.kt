@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class SNP (
     private var rsId: String,
     var chromosome: String,
-    var position: Int,
+    var position: String,
     private var referenceAllele: String,
     private var alternateAllele: String,
     )
