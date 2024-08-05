@@ -20,6 +20,16 @@ const apiService = {
       console.error('Error fetching data from back-end server:', error);
       throw error;
     }
+  },
+
+  getMostLikelyGene: async (snp: String) => {
+    try {
+      const response = await axios.get(`${domainApi}/snp/mostlikelygene/${snp}`);
+      return response.data
+    } catch (error) {
+      console.error('Error fetching data from back-end server:', error);
+      throw error;
+    }
   }
 }
 

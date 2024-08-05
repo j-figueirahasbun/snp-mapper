@@ -25,10 +25,18 @@ class SNPService {
     }
 
     private fun parseSNPInformationResponseToJsonArray (response: Response) : JsonArray {
-        return response.body!!.string().let{Json.parseToJsonElement(it).jsonArray}
+        //println(response.body!!.string().let{Json.parseToJsonElement(it).jsonArray})
+        val jsonResponse = response.body!!.string().let{Json.parseToJsonElement(it)}
+        if (jsonResponse is JsonArray && jsonResponse.size >= 4){
+            return jsonResponse[3].jsonArray
+        } else {
+            throw IllegalStateException("Unexpected json structure")
+        }
+        //return response.body!!.string().let{Json.parseToJsonElement(it).jsonArray}
     }
 
     private fun mapJsonArrayToSnp(jsonArray: JsonArray): SNP {
+        println(jsonArray)
         val resultSNP = jsonArray[3].jsonArray[0].jsonArray
         return SNP(
             rsId = resultSNP[0].jsonPrimitive.content,

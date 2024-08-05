@@ -21,6 +21,7 @@ class GeneService {
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response from ENSEMBL was unsuccessful: $response")
+            println(response.body)
             return mapPositionalJsonArrayResultsToGene(parseMappingResponseToJsonArray(response), snp)
         }
 
