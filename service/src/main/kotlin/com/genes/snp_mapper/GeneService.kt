@@ -21,13 +21,15 @@ class GeneService {
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response from ENSEMBL was unsuccessful: $response")
-            return mapPositionalJsonArrayResultsToGene(parseMappingResponseToJsonArray(response), snp)
+            val parsedResponse = parseMappingResponseToJsonArray(response)
+            return mapPositionalJsonArrayResultsToGene(parsedResponse, snp)
         }
 
     }
 
-    private fun genePositionalRequest(coordinates: Pair<String, Int>): Request {
-        val (chromosome, position) = coordinates
+    private fun genePositionalRequest(coordinates: Pair<String, String>): Request {
+        val (chromosome, positionString) = coordinates
+        val position = positionString.toInt()
         val start = (position - 10000).coerceAtLeast(0)
         val end = (position + 10000)
         val url =
@@ -43,8 +45,8 @@ class GeneService {
         val resultingGene = jsonArray[0].jsonObject
         return Gene(
             snp = rsId,
-            symbol = resultingGene["external_name"]!!.jsonPrimitive.content,
-            type = resultingGene["biotype"]!!.jsonPrimitive.content,
+            symbol = resultingGene["external_name"]?.jsonPrimitive?.content ?: "No symbol Available",
+            type = resultingGene["biotype"]?.jsonPrimitive?.content ?: "Not Available",
             mappingType = "Positional",
         )
     }
@@ -53,7 +55,8 @@ class GeneService {
         val request = geneFunctionalRequest(snp)
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response from ENSEMBL was unsuccessful: $response")
-            return mapJsonArrayTranscriptsToGenes(parseMappingResponseToJsonArray(response), snp)
+            val parsedResponse = parseMappingResponseToJsonArray(response)
+            return mapJsonArrayTranscriptsToGenes(parsedResponse, snp)
         }
 
     }
@@ -71,8 +74,8 @@ class GeneService {
 
             val gene = Gene(
                 snp = rsId,
-                symbol = transcriptElement.jsonObject["gene_symbol"]!!.jsonPrimitive!!.content,
-                type = transcriptElement.jsonObject["biotype"]!!.jsonPrimitive!!.content,
+                symbol = transcriptElement.jsonObject["gene_symbol"]?.jsonPrimitive?.content ?: "Not Available",
+                type = transcriptElement.jsonObject["biotype"]?.jsonPrimitive?.content ?: "Not Available",
                 mappingType = "Functional"
             )
 
@@ -83,13 +86,24 @@ class GeneService {
 
     private fun obtainGTExVariantId (snp: String): String {
         val url = "https://gtexportal.org/api/v2/dataset/variant?&snpId=$snp&page=0&itemsPerPage=250"
-        val gtexVariantId : String = "Not available"
+        return try {
         client.newCall(Request.Builder().url(url).build()).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response from : $response")
-            val responseInArray = response.body!!.string().let { Json.parseToJsonElement(it).jsonArray }
-            val gtexVariantId = responseInArray[0].jsonObject["variantId"]?.jsonPrimitive?.content
+            val jsonResponse = response.body!!.string()
+            val jsonObject = Json.parseToJsonElement(jsonResponse).jsonObject
+            val dataArray = jsonObject["data"]?.jsonArray
+            if (dataArray != null && dataArray.isNotEmpty()) {
+                val gtexVariantId = dataArray[0].jsonObject["variantId"]?.jsonPrimitive?.content ?: "Not Available"
+                return gtexVariantId
+            } else {
+                "Not Available"
+            }
         }
-        return gtexVariantId
+        } catch (e: Exception) {
+            "not available"
+        }
+
+
     }
 
     private fun geneEQTLRequest(gtexVariantId: String): Request {
@@ -97,26 +111,33 @@ class GeneService {
         return Request.Builder().url(url).build()
     }
 
-    private fun mapEQTLResultsArrayToGenes ( jsonArray: JsonArray) : List<Gene> {
+    private fun mapEQTLResultsArrayToGenes(jsonObject: JsonObject): List<Gene> {
         val genes = mutableListOf<Gene>()
-        jsonArray.forEach{ mappingElement ->
-            val mappingElement = mappingElement.jsonObject
-            val gene = Gene (
-                snp = mappingElement["snpId"]!!.jsonPrimitive.content,
-                symbol = mappingElement["geneSymbol"]!!.jsonPrimitive!!.content,
-                type = mappingElement["tissueSiteDetailId"]!!.jsonPrimitive!!.content,
+
+        // Access the "data" array in the JSON object
+        val dataArray = jsonObject["data"]?.jsonArray ?: JsonArray(emptyList())
+
+        dataArray.forEach { mappingElement ->
+            val mappingObject = mappingElement.jsonObject
+            val gene = Gene(
+                snp = mappingObject["snpId"]?.jsonPrimitive?.content ?: "Not Available",
+                symbol = mappingObject["geneSymbol"]?.jsonPrimitive?.content ?: "Not Available",
+                type = mappingObject["tissueSiteDetailId"]?.jsonPrimitive?.content ?: "Not Available",
                 mappingType = "eQTL Mapping"
             )
             genes.add(gene)
         }
+
         return genes
     }
+
 
     fun eQTLMapping (snp: String): List<Gene> {
         val request = geneEQTLRequest(obtainGTExVariantId(snp))
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw IOException("Response from GTEx database was unsuccessful: $response")
-            return mapEQTLResultsArrayToGenes(parseMappingResponseToJsonArray(response))
+            val jsonResponse = Json.parseToJsonElement(response.body!!.string()).jsonObject
+            return mapEQTLResultsArrayToGenes(jsonResponse)
         }
     }
 }

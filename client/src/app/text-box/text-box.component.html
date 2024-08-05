@@ -3,7 +3,7 @@
   <button class="button-pill" (click)="onClick()">Fetch SNP Info</button>
 </div>
 
-<div *ngIf="snpInfo !== ' '">
+<div *ngIf="snpInfo && snpInfo !== ''" class="snp-info-container">
   <h3>SNP Info:</h3>
   <p>{{ snpInfo }}</p>
 </div>

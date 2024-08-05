@@ -29,6 +29,16 @@
   vertical-align: middle;
 }
 
+.snp-info-container{
+  width: 90%;
+  margin: 10px auto;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 input[type="text"] {
   border:solid 1px var(--primary-color);
   padding: 10px;

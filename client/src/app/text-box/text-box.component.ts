@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import apiService from "./../../services/apiService";
 import {FormsModule} from "@angular/forms";
-import {NgIf} from "@angular/common"; // Adjust import as per your service definition
+import {NgIf} from "@angular/common";
+
+// import {NgIf} from "@angular/common"; // Adjust import as per your service definition
 
 @Component({
   selector: 'app-text-box',
@@ -9,20 +11,22 @@ import {NgIf} from "@angular/common"; // Adjust import as per your service defin
   standalone: true,
   imports: [
     FormsModule,
-    NgIf
+    NgIf,
+
+    // NgIf
+
   ],
   styleUrls: ['./text-box.component.css'],
 
 })
 export class TextBoxComponent {
   inputSNP: string = '';
-  snpInfo: string = ' ' // Define as per the expected response type
-
-  // constructor(private apiService) {} // Inject ApiService
+  snpInfo: string = '' // Define as per the expected response type
 
   async onClick() {
     try {
-      const response = await apiService.getSNPInfo(this.inputSNP); // Make the API call
+      this.snpInfo=''; //clear previous results
+      const response = await apiService.getMostLikelyGene(this.inputSNP); // Make the API call
       this.snpInfo = response; // Assuming response.data contains the result
       console.log(response)
     } catch (error) {
