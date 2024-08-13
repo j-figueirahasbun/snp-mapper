@@ -12,6 +12,6 @@ import {TextBoxComponent} from "./text-box/text-box.component";
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  title = 'John';
+  title = 'SNP-Mapper';
 
 }
