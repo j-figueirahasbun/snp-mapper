@@ -27,6 +27,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test:3.3.1")
 
+    testImplementation(kotlin("test"))
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -38,5 +39,9 @@ kotlin {
 }
 
 tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
+tasks.test {
     useJUnitPlatform()
 }
