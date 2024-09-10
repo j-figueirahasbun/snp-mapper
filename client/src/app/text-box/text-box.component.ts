@@ -3,8 +3,6 @@ import apiService from "./../../services/apiService";
 import {FormsModule} from "@angular/forms";
 import {NgIf} from "@angular/common";
 
-// import {NgIf} from "@angular/common"; // Adjust import as per your service definition
-
 @Component({
   selector: 'app-text-box',
   templateUrl: './text-box.component.html',
@@ -12,9 +10,6 @@ import {NgIf} from "@angular/common";
   imports: [
     FormsModule,
     NgIf,
-
-    // NgIf
-
   ],
   styleUrls: ['./text-box.component.css'],
 
