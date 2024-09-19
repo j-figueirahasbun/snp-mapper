@@ -4,6 +4,21 @@
 </div>
 
 <div *ngIf="snpInfo && snpInfo !== ''" class="snp-info-container">
-  <h3>Most likely gene:</h3>
+  <h3>Most likely gene post mappings:</h3>
+  <p>{{ snpInfo }}</p>
+</div>
+
+<div *ngIf="snpInfo && snpInfo !== ''" class="snp-info-container">
+  <h3>Positional mappings results:</h3>
+  <p>{{ snpInfo }}</p>
+</div>
+
+<div *ngIf="snpInfo && snpInfo !== ''" class="snp-info-container">
+  <h3>Functional mapping results:</h3>
+  <p>{{ snpInfo }}</p>
+</div>
+
+<div *ngIf="snpInfo && snpInfo !== ''" class="snp-info-container">
+  <h3>eQTL mapping results:</h3>
   <p>{{ snpInfo }}</p>
 </div>
