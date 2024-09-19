@@ -27,7 +27,7 @@ class SNPServiceTest {
         snpService = spy(SNPService::class.java)
 
         // Create a mock OKHttpClient and response
-        mockClient = mock(OkHttpClient::class.java) //this line creates a mock version of okHttpClient so we can control
+        mockClient = mock(OkHttpClient::class.java) //this line creates a mock version of okHttpClient, so we can control
         // its behavior during the test
         mockResponse = mock(Response::class.java)
 
@@ -53,14 +53,14 @@ class SNPServiceTest {
     fun obtainSNPInformation() {
 
         //Mocking the behavior of client.newCall(request) and response
-        val mockCall = mock(okhttp3.Call::class.java)
+        val mockCall = mock(Call::class.java)
         whenever(mockClient.newCall(any<Request>())).thenReturn(mockCall)
         whenever(mockCall.execute()).thenReturn(mockResponse)
 
         //Mock response behavior
         whenever(mockResponse.isSuccessful).thenReturn(true)
 
-        //create a mock responsebody as a separate mock apparently
+        //create a mock ResponseBody as a separate mock apparently
         val mockBody = mock(ResponseBody::class.java)
         whenever(mockResponse.body).thenReturn(mockBody)
         whenever(mockBody.string()).thenReturn("""
