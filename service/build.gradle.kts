@@ -31,6 +31,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("com.squareup.okhttp3:mockwebserver:5.0.0-alpha.3")
     testImplementation("org.mockito:mockito-core:3.9.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
