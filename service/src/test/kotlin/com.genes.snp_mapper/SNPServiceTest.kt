@@ -1,9 +1,6 @@
 package com.genes.snp_mapper
 
-import okhttp3.Call
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
+import okhttp3.*
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import org.junit.jupiter.api.Assertions.*
@@ -62,7 +59,11 @@ class SNPServiceTest {
 
         //Mock response behavior
         whenever(mockResponse.isSuccessful).thenReturn(true)
-        whenever(mockResponse.body?.string()).thenReturn("""
+
+        //create a mock responsebody as a separate mock apparently
+        val mockBody = mock(ResponseBody::class.java)
+        whenever(mockResponse.body).thenReturn(mockBody)
+        whenever(mockBody.string()).thenReturn("""
                 ["response1", "response2", "response3", [["rs123", "1", "12345", "A/T"]]]
         """.trimIndent())
 
