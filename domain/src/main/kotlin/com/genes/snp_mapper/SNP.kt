@@ -11,5 +11,7 @@ data class SNP (
     private var alternateAllele: String,
     )
 {
-
+    fun getRsId() = rsId
+    fun getReferenceAllele() = referenceAllele
+    fun getAlternateAllele() = alternateAllele
 }
