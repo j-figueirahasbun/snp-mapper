@@ -2,7 +2,7 @@
 
 ## Status
 
-![example workflow](https://github.com/j-figueirahasbun/snp-mapper/.github/workflows/github-ci.yml/badge.svg)
+![example workflow](https://github.com/j-figueirahasbun/snp-mapper/.github/workflows/CI%20PIPELINE/badge.svg)
 
 ## Goal
 
