@@ -2,7 +2,8 @@
 
 ## Status
 
-![pipeline status](https://github.com/j-figueirahasbun/snp-mapper/blob/main/.github/workflows/github-ci.yml/badge.svg)
+![example workflow](https://github.com/j-figueirahasbun/snp-mapper/.github/workflows/github-ci.yml
+/badge.svg)
 
 ## Goal
 
