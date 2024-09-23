@@ -30,7 +30,7 @@ jobs:
 
     - name: Run Coverage Analysis
       run: |
-        cd service
+        # cd service
         ./gradlew jacocoTestReport jacocoTestCoverageVerification # Generate coverage report
         # Adjust the path based on where your coverage reports are generated
 
