@@ -115,10 +115,79 @@ class GeneServiceTest {
     }
 
     @Test
-    fun functionalMapping() {
+    fun functionalMappingReturnsListOfGenes() {
+        whenever(mockClient.newCall(any())).thenReturn(mockCall)
+        whenever(mockCall.execute()).thenReturn(mockResponse)
+
+        val mockBody = mock(ResponseBody::class.java)
+        whenever(mockResponse.body).thenReturn(mockBody)
+        whenever(mockResponse.isSuccessful).thenReturn(true)
+        whenever(mockBody.string()).thenReturn("""
+            [{
+                "transcript_consequences": [{
+                    "gene_symbol": "GENE1",
+                    "biotype": "protein_coding"
+                }]
+            }]
+        """.trimIndent())
+
+        val result = geneService.functionalMapping("rs123")
+
+        assertEquals(1, result.size)
+        assertEquals("GENE1", result[0].symbol)
+        assertEquals("protein_coding", result[0].getType())
+        assertEquals("Functional", result[0].getMappingType())
+        assertEquals("rs123", result[0].getSnp())
     }
 
     @Test
-    fun eQTLMapping() {
+    fun functionalMappingThrowsExceptionWhenResponseIsNotSuccessful(){
+        whenever(mockClient.newCall(any())).thenReturn(mockCall)
+        whenever(mockCall.execute()).thenReturn(mockResponse)
+        whenever(mockResponse.isSuccessful).thenReturn(false)
+
+        assertThrows<IOException> {
+            geneService.functionalMapping("rs123")
+        }
     }
+
+    @Test
+    fun eQTLMappingReturnsListOfGenes() {
+
+        val mockBody = mock(ResponseBody::class.java)
+
+        whenever(mockClient.newCall(any())).thenReturn(mockCall)
+        whenever(mockCall.execute()).thenReturn(mockResponse)
+        whenever(mockResponse.body).thenReturn(mockBody)
+        whenever(mockResponse.isSuccessful).thenReturn(true)
+        whenever(mockBody.string()).thenReturn("""
+            {
+                "data": [{
+                    "snpId": "rs123",
+                    "geneSymbol": "GENE1",
+                    "tissueSiteDetailId": "Liver"
+                }]
+            }
+        """.trimIndent())
+
+        val result = geneService.eQTLMapping("rs123")
+
+        assertEquals(1, result.size)
+        assertEquals("GENE1", result[0].symbol)
+        assertEquals("Liver", result[0].getType())
+        assertEquals("eQTL Mapping", result[0].getMappingType())
+        assertEquals("rs123", result[0].getSnp())
+    }
+
+    @Test
+    fun eQTLMappingThrowsExceptionWhenRequestFails(){
+        whenever(mockClient.newCall(any())).thenReturn(mockCall)
+        whenever(mockCall.execute()).thenReturn(mockResponse)
+        whenever(mockResponse.isSuccessful).thenReturn(false)
+
+        assertThrows<IOException> {
+            geneService.eQTLMapping("rs123")
+        }
+    }
+
 }
