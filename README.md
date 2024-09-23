@@ -2,6 +2,8 @@
 
 ## Status
 
+![pipeline status](https://github.com/j-figueirahasbun/snp-mapper/blob/main/.github/workflows/github-ci.yml/badge.svg)
+
 ## Goal
 
 Create an app where single nucleotide polymorphism (SNP) (genetic mutations) are linked with genes through an amalgamation of different types of mappings.
