@@ -1,6 +1,7 @@
 # SNPMapper
 
 ## Status
+Development for this project is still in progress.
 
 ## Goal
 
@@ -73,7 +74,7 @@ Organize issue board more efficiently and keep up to track with weekly goals.
 Practice with the use of Kotlin as a programming language.
 
 **Angular:**
-Use Angular DB for the front-end to learn and practice a new framework.
+Use Angular for the front-end to learn and practice a new framework.
 
 
 
@@ -85,7 +86,9 @@ If Possible, integrate an AWS cloud service in the project to further practice p
 **IntelliJ:** Use a different IDE than the usual VSCode
 
 ## Authors and acknowledgment
-[Show your appreciation to those who have contributed to the project.]
+**Author**
+
+John Figueira Hasbun
 
 ## Project status
-[If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.]
+The development of this project has been put on pause for the moment, and is still in progress. 
