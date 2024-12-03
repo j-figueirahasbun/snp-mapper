@@ -25,14 +25,21 @@ jobs:
     - name: Build
       run: ./gradlew build
 
-    # - name: Run Tests
-    #   run: ./gradlew test
+    - name: Run Tests
+      run: ./gradlew test
 
-    # - name: Run Coverage Analysis
-    #   run: |
-    #     cd service
-    #     ./gradlew jacocoTestReport  # Generate coverage report
-    #     # Adjust the path based on where your coverage reports are generated
+    - name: Run Coverage Analysis
+      run: |
+        # cd service
+        ./gradlew jacocoTestReport jacocoTestCoverageVerification # Generate coverage report
+        # Adjust the path based on where your coverage reports are generated
+
+    - name: Upload a Build Artifact
+      if: always()
+      uses: actions/upload-artifact@v3.2.1-node20
+      with:
+        name: coverage-report
+        path: service/build/reports/jacoco/test
 
     # Optionally, you can add a step to run the Spring Boot application if needed
     # - name: Run Spring Boot Application

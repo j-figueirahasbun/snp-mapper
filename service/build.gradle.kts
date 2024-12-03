@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "1.9.24"
     kotlin("plugin.spring") version "1.9.24"
     kotlin("plugin.serialization") version "2.0.0"
+    id("jacoco")
 }
 
 group = "com.genes"
@@ -10,6 +11,28 @@ version = "0.0.1-SNAPSHOT"
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.10"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.90".toBigDecimal()
+            }
+        }
     }
 }
 
@@ -42,10 +65,12 @@ kotlin {
     }
 }
 
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }

@@ -10,5 +10,7 @@ data class Gene (
     private var mappingType: String,
     )
 {
-
+    fun getSnp() = snp
+    fun getType() = type
+    fun getMappingType() = mappingType
 }

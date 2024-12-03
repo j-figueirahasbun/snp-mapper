@@ -3,6 +3,8 @@
 ## Status
 Development for this project is still in progress.
 
+![example workflow](https://github.com/j-figueirahasbun/snp-mapper/.github/workflows/CI%20PIPELINE/badge.svg)
+
 ## Goal
 
 Create an app where single nucleotide polymorphism (SNP) (genetic mutations) are linked with genes through an amalgamation of different types of mappings.

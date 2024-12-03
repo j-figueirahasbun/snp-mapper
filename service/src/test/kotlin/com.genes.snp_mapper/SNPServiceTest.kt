@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.mockito.kotlin.mock
@@ -50,7 +51,7 @@ class SNPServiceTest {
     }
 
     @Test
-    fun obtainSNPInformation() {
+    fun obtainSNPInformationReturnsSNPWithInformation() {
 
         //Mocking the behavior of client.newCall(request) and response
         val mockCall = mock(Call::class.java)
@@ -81,6 +82,73 @@ class SNPServiceTest {
     }
 
     @Test
-    fun obtainSNPCoordinates() {
+    fun obtainSNPInformationReturnsExceptionWhenRequestHasUnexpectedStructure(){
+        //Mock call and response
+        whenever(mockClient.newCall(any<Request>())).thenReturn(mockCall)
+        whenever(mockCall.execute()).thenReturn(mockResponse)
+
+        //mock the response to return an unexpected json structure
+        val mockBody = mock(ResponseBody::class.java)
+        whenever(mockResponse.body).thenReturn(mockBody)
+        whenever(mockResponse.isSuccessful).thenReturn(true)
+        whenever(mockBody.string()).thenReturn("""
+                ["response1", "response2", "response3"]
+        """)
+
+        // Expect an IllegalStateException due to an unexpected JSON structure
+        assertThrows<IllegalStateException> {
+            snpService.obtainSNPCoordinates("rs123")
+        }
+
+
+    }
+
+    @Test
+    fun obtainSNPInformationReturnsExceptionWhenResponseHasNoFourthElement(){
+        //Mock call and response
+        whenever(mockClient.newCall(any<Request>())).thenReturn(mockCall)
+        whenever(mockCall.execute()).thenReturn(mockResponse)
+
+        //mock the response to return an unexpected json str
+        // structure
+        val mockBody = mock(ResponseBody::class.java)
+        whenever(mockResponse.body).thenReturn(mockBody)
+        whenever(mockResponse.isSuccessful).thenReturn(true)
+        whenever(mockBody.string()).thenReturn("""
+                ["response1", "response2", "response3", "unexpectedStringInsteadOfArray"]
+        """)
+
+        // Expect an IllegalStateException due to an unexpected 4th element
+        assertThrows<IllegalStateException> {
+            snpService.obtainSNPCoordinates("rs123")
+        }
+
+
+    }
+
+    @Test
+    fun obtainSNPCoordinatesReturnsChromosomeNumberAndPosition() {
+
+        //Mocking the behavior of the client.newCall(request) and the response
+        whenever(mockClient.newCall(any<Request>())).thenReturn(mockCall)
+        whenever(mockCall.execute()).thenReturn(mockResponse)
+
+        //mocking response behavior
+        whenever(mockResponse.isSuccessful).thenReturn(true)
+
+        //Create a mock responseBody for the response's body
+        val mockBody = mock(ResponseBody::class.java)
+        whenever(mockResponse.body).thenReturn(mockBody)
+        whenever(mockBody.string()).thenReturn("""
+                ["response1", "response2", "response3", [["rs123", "1", "12345", "A/T"]]]
+        """.trimIndent())
+
+        //call the method and test
+        val result = snpService.obtainSNPCoordinates("rs123")
+
+        //Assertions
+        assertEquals("1", result.first)//the chromosome
+        assertEquals("12345", result.second)//the position
+
     }
 }
