@@ -15,16 +15,16 @@ COPY gradle /app/gradle
 COPY . /app 
 
 # Move to the directory containing the main entry point 
-WORKDIR /app/api/src/main/ 
+#WORKDIR /app/api/src/main/
 
 # Make the gradlew script executable 
 RUN chmod +x /app/gradlew 
 
 # Build the application 
-RUN /app/gradlew build 
+RUN ./gradlew build
 
 # Expose port 8080 
 EXPOSE 8080
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "build/libs/snp-mapper-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "api/build/libs/snp-mapper-0.0.1-SNAPSHOT.jar"]
