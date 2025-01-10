@@ -1,30 +1,29 @@
-# Use the latest OpenJDK runtime as a parent image
-FROM gradle:latest
+# Use the latest Gradle image for building the project
+FROM gradle:latest AS builder
 
-# Install xargs (included in findutils) 
-#RUN apt-get update && apt-get install -y findutils
+# Set the working directory in the container
+WORKDIR /app
 
-# Set the working directory in the container 
-WORKDIR /app 
+# Copy all project files into the container
+COPY . .
 
-# Copy the Gradle wrapper files 
-COPY gradlew /app/ 
-COPY gradle /app/gradle 
+# Make the Gradle wrapper executable
+RUN chmod +x ./gradlew
 
-# Copy the rest of the source code 
-COPY . /app 
+# Build the application using Gradle
+RUN ./gradlew build --no-daemon
 
-# Move to the directory containing the main entry point 
-#WORKDIR /app/api/src/main/
+# Use a lightweight OpenJDK image for running the application
+FROM openjdk:17-jdk-slim
 
-# Make the gradlew script executable 
-RUN chmod +x /app/gradlew 
+# Set the working directory in the container
+WORKDIR /app
 
-# Build the application 
-RUN ./gradlew build
+# Copy the JAR file from the builder stage
+COPY --from=builder /app/build/libs/snp-mapper-0.0.1-SNAPSHOT.jar app.jar
 
-# Expose port 8080 
+# Expose port 8080
 EXPOSE 8080
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "api/build/libs/snp-mapper-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
